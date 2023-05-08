@@ -2,8 +2,8 @@ use magic_crypt::{MagicCrypt256, MagicCryptTrait};
 
 #[derive(Debug)]
 pub struct Account {
-   pub email: Option<String>,
    pub username: Option<String>,
+   pub email: Option<String>,
    pub password: String,
 }
 
