@@ -34,7 +34,7 @@ pub fn deserialise(decrypter: &MagicCrypt256, password_file: &str) -> Result<Vec
             email = None;
         }
         let password = lines.next().expect("Should be safe to unwrap").to_string();
-        accounts.push(Account::new(&decrypter, username, email, password));
+        accounts.push(Account::new(Some(&decrypter), username, email, password));
     }
     Ok(accounts)
 }
