@@ -23,7 +23,7 @@ impl Account {
     /// Returns a copy of the Account's email
     ///
     /// # Returns
-    /// 
+    ///
     /// `None` if there is no email attached to the account, otherwise a clone of the accounts
     /// email
     pub fn email(&self) -> Option<String> {
@@ -33,7 +33,7 @@ impl Account {
     /// Returns a copy of the Account's username
     ///
     /// # Returns
-    /// 
+    ///
     /// `None` if there is no username attached to the account, otherwise a clone of the accounts
     /// username
     pub fn username(&self) -> Option<String> {
@@ -131,24 +131,24 @@ impl AccountBuilder {
                         .decrypt_base64_to_string(username)
                         .expect("Username failed to desrypt"),
                 );
-                if let Some(email) = &self.email {
-                    self.email = Some(
-                        decrypter
-                            .decrypt_base64_to_string(email)
-                            .expect("Email failed to desrypt"),
-                    );
-                }
-                if !self.password.is_empty() {
-                    self.password = decrypter
-                        .decrypt_base64_to_string(&self.password)
-                        .expect("Password failed to decrypt");
-                }
+            }
+            if let Some(email) = &self.email {
+                self.email = Some(
+                    decrypter
+                        .decrypt_base64_to_string(email)
+                        .expect("Email failed to desrypt"),
+                );
+            }
+            if !self.password.is_empty() {
+                self.password = decrypter
+                    .decrypt_base64_to_string(&self.password)
+                    .expect("Password failed to decrypt");
+            }
 
-                if !self.label.is_empty() {
-                    self.label = decrypter
-                        .decrypt_base64_to_string(&self.label)
-                        .expect("Label failed to desrypt");
-                }
+            if !self.label.is_empty() {
+                self.label = decrypter
+                    .decrypt_base64_to_string(&self.label)
+                    .expect("Label failed to desrypt");
             }
         }
 

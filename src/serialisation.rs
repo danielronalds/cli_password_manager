@@ -1,4 +1,4 @@
-use magic_crypt::MagicCrypt256;
+use magic_crypt::{MagicCrypt256, MagicCryptTrait};
 
 use std::fs::File;
 use std::io::{
@@ -16,13 +16,21 @@ use crate::account::Account;
 ///
 /// # Returns
 /// A result either containing the vector of accounts or an IO error
-pub fn deserialise(decrypter: &MagicCrypt256, password_file: &str) -> Result<Vec<Account>> {
+pub fn deserialise(decrypter: &MagicCrypt256, password_file: &str, password: &str) -> Result<Vec<Account>> {
     let mut file = File::open(password_file)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     let mut lines = contents.lines();
 
     let mut accounts: Vec<Account> = vec![];
+
+    let passkey = decrypter.decrypt_base64_to_string(lines.next().expect("Should be safe to unwrap")).unwrap();
+
+    if password !=  passkey {
+        println!("{}", passkey);
+        panic!("WRONG PASSWORD!");
+
+    }
 
     for _ in 0..(lines.clone().count() / 4) {
         let mut account_builder = Account::builder();
@@ -56,8 +64,11 @@ pub fn serialise(
     encrypter: &MagicCrypt256,
     accounts: Vec<Account>,
     password_file: &str,
+    password: &str
 ) -> Result<()> {
     let mut file = File::create(password_file)?;
+
+    writeln!(file, "{}", encrypter.encrypt_str_to_base64(password)).expect("Failed to write passkey");
 
     for account in accounts {
         writeln!(file, "{}", account.encrypt(&encrypter))?;
