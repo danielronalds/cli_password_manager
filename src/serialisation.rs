@@ -27,7 +27,7 @@ pub fn deserialise(decrypter: &MagicCrypt256, password_file: &str) -> Result<Vec
     for _ in 0..(lines.clone().count() / 4) {
         let mut account_builder = Account::builder();
 
-        account_builder.name(lines.next().expect("Should be safe to unwrap"));
+        account_builder.label(lines.next().expect("Should be safe to unwrap"));
 
         let username = lines.next().expect("Should be safe to unwrap");
         if !username.is_empty() {

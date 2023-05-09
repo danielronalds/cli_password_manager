@@ -1,8 +1,5 @@
-mod account;
-mod serialisation;
-
 use magic_crypt::new_magic_crypt;
-use serialisation::{deserialise, serialise};
+use password_manager::serialisation::{deserialise, serialise};
 
 const PASSWORD_FILE: &str = "testing.txt";
 
