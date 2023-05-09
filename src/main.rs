@@ -10,7 +10,8 @@ fn main() {
     let accounts =
         deserialise(&magic_crypt, PASSWORD_FILE, FILE_KEY).expect("Failed to deserialise data");
 
-    println!("{:#?}", accounts);
+    let mut app = password_manager::app::PasswordManagerApp::new(accounts);
+    app.run();
 
-    serialise(&magic_crypt, accounts, PASSWORD_FILE, FILE_KEY).expect("Failed to serialise data");
+    //serialise(&magic_crypt, accounts, PASSWORD_FILE, FILE_KEY).expect("Failed to serialise data");
 }

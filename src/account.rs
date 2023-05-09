@@ -1,6 +1,6 @@
 use magic_crypt::{MagicCrypt256, MagicCryptTrait};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// A struct that stores the details of an account stored in the password manager
 pub struct Account {
     label: String,
