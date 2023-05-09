@@ -24,17 +24,24 @@ pub fn deserialise(decrypter: &MagicCrypt256, password_file: &str) -> Result<Vec
 
     let mut accounts: Vec<Account> = vec![];
 
-    for _ in 0..(lines.clone().count() / 3) {
-        let mut username = Some(lines.next().expect("Should be safe to unwrap").to_string());
-        if username.clone().unwrap().is_empty() {
-            username = None;
+    for _ in 0..(lines.clone().count() / 4) {
+        let mut account_builder = Account::builder();
+
+        account_builder.name(lines.next().expect("Should be safe to unwrap"));
+
+        let username = lines.next().expect("Should be safe to unwrap");
+        if !username.is_empty() {
+            account_builder.username(username);
         }
-        let mut email = Some(lines.next().expect("Should be safe to unwrap").to_string());
-        if email.clone().unwrap().is_empty() {
-            email = None;
+
+        let email = lines.next().expect("Should be safe to unwrap");
+        if !email.is_empty() {
+            account_builder.email(email);
         }
-        let password = lines.next().expect("Should be safe to unwrap").to_string();
-        accounts.push(Account::new(Some(&decrypter), username, email, password));
+
+        account_builder.password(lines.next().expect("Should be safe to unwrap"));
+
+        accounts.push(account_builder.decrypt(decrypter.clone()).build());
     }
     Ok(accounts)
 }

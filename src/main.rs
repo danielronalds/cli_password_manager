@@ -11,7 +11,7 @@ fn main() {
 
     let accounts = deserialise(&magic_crypt, PASSWORD_FILE).expect("Failed to deserialise data");
 
-    accounts.iter().for_each(|x| println!("{:#?}", x));
+    println!("{:#?}", accounts);
 
     serialise(&magic_crypt, accounts, PASSWORD_FILE).expect("Failed to serialise data");
 }
