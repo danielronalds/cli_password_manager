@@ -1,3 +1,5 @@
+//! A module that handles the logic of storing accounts while the app is running
+
 use magic_crypt::{MagicCrypt256, MagicCryptTrait};
 
 #[derive(Debug, Clone)]
@@ -76,6 +78,7 @@ impl Account {
     }
 }
 
+/// A builder struct for constructing an `Account`
 pub struct AccountBuilder {
     decrypter: Option<MagicCrypt256>,
     label: String,
