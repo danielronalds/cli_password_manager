@@ -1,9 +1,10 @@
+use colored::Colorize;
 use crossterm::{
     cursor,
     event::{read, Event, KeyCode},
     execute,
     style::Print,
-    terminal::{ClearType, Clear},
+    terminal::{Clear, ClearType},
     Result,
 };
 use std::io::stdout;
@@ -17,6 +18,18 @@ use std::io::stdout;
 ///
 pub fn println<T: ToString>(text: T) -> Result<()> {
     let text = format!("{}\n\r", text.to_string());
+    execute!(stdout(), Print(text))?;
+    Ok(())
+}
+
+/// Prints a string to the stdout using Crossterm. Works in raw mode
+///
+/// # Arguments
+///
+/// * `text` - The text to write to stdout
+///
+pub fn print<T: ToString>(text: T) -> Result<()> {
+    let text = format!("{}", text.to_string());
     execute!(stdout(), Print(text))?;
     Ok(())
 }
@@ -48,7 +61,11 @@ pub fn get_confirmation() -> Result<bool> {
 ///
 /// If no errors occured, an Option containing None if the user canceled the operation, or Some
 /// containing what the user inputted
-pub fn textfield<T: ToString>(prompt: T, prompt_len: u16, content: String) -> Result<Option<String>> {
+pub fn textfield<T: ToString>(
+    prompt: T,
+    prompt_len: u16,
+    content: String,
+) -> Result<Option<String>> {
     execute!(stdout(), cursor::Show, cursor::SetCursorStyle::SteadyBlock)?;
 
     let mut output = content;
@@ -91,4 +108,3 @@ pub fn textfield<T: ToString>(prompt: T, prompt_len: u16, content: String) -> Re
 
     Ok(Some(output))
 }
-
