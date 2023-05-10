@@ -1,4 +1,5 @@
 mod search;
+mod view;
 
 use colored::Colorize;
 use crossterm::{
@@ -12,7 +13,6 @@ use crossterm::{
 use std::io::stdout;
 
 use crate::account::Account;
-use crate::terminal_drawing;
 
 use search::{search, SearchAction};
 
@@ -27,14 +27,19 @@ impl PasswordManagerApp {
 
     pub fn run(&mut self) -> Result<Vec<Account>> {
         enable_raw_mode()?;
-        let search_result = search(&self.accounts)?;
-        execute!(stdout(), cursor::MoveTo(0, 0), Clear(ClearType::All))?;
+        loop {
+            let search_result = search(&self.accounts)?;
+            execute!(stdout(), cursor::MoveTo(0, 0), Clear(ClearType::All))?;
+            match search_result {
+                SearchAction::ViewAccount(account_label) => {
+                    let index = self.accounts.iter().position(|x| x.label() == account_label).unwrap();
+                    self.accounts[index] = view::view(self.accounts[index].clone())?;
+                }
+                SearchAction::NewAccount(_) => println!("Create new"),
+                SearchAction::Exit => break,
+            };
+        }
         disable_raw_mode()?;
-        match search_result {
-            SearchAction::ViewAccount(_) => println!("View"),
-            SearchAction::NewAccount(_) => println!("Create new"),
-            SearchAction::Exit => println!("Exit"),
-        };
         Ok(vec![])
     }
 }
