@@ -1,3 +1,5 @@
+//! This module contains the search "page" of the application
+
 use colored::Colorize;
 use crossterm::{
     cursor,
@@ -12,9 +14,13 @@ use std::io::stdout;
 use crate::account::Account;
 use crate::terminal_drawing;
 
+/// Enum that represents the result of the search page
 pub enum SearchAction {
+    /// Create a new account with the given label
     NewAccount(String),
+    /// View an existing account with the given label
     ViewAccount(String),
+    /// Exit the application
     Exit,
 }
 
@@ -22,6 +28,7 @@ pub fn search(accounts: &Vec<Account>) -> Result<SearchAction> {
     let mut search_term = String::new();
     let mut filtered_accounts = accounts.clone();
     let mut search_over = false;
+
     loop {
         draw_search_results(&filtered_accounts)?;
         let prompt = format!("{} ", " Search ".black().on_bright_white());
@@ -37,7 +44,7 @@ pub fn search(accounts: &Vec<Account>) -> Result<SearchAction> {
             filtered_accounts = accounts.clone();
             continue;
         }
-        // This one really needs some work... DON'T FORGET TO CHANGE THIS
+        // This algorithim really needs some work... DON'T FORGET TO CHANGE THIS
         filtered_accounts = accounts
             .iter()
             .filter(|x| {
@@ -51,9 +58,9 @@ pub fn search(accounts: &Vec<Account>) -> Result<SearchAction> {
             .map(|x| x.to_owned())
             .collect();
 
-            if search_over {
-                break;
-            }
+        if search_over {
+            break;
+        }
     }
     match filtered_accounts.first() {
         Some(account) => Ok(SearchAction::ViewAccount(account.label())),
@@ -61,10 +68,14 @@ pub fn search(accounts: &Vec<Account>) -> Result<SearchAction> {
     }
 }
 
+/// Enum to represent the result of the search textfield
 enum SearchResult {
+    /// User would still like to refine their search
     ContinueSearch(String),
+    /// User has found what they're looking for
     SearchFinished(String),
-    Exit
+    /// Exit the search
+    Exit,
 }
 
 fn search_textfield(prompt: String, prompt_len: u16, content: String) -> Result<SearchResult> {
@@ -101,6 +112,7 @@ fn search_textfield(prompt: String, prompt_len: u16, content: String) -> Result<
     Ok(SearchResult::ContinueSearch(output))
 }
 
+/// 
 fn draw_search_results(accounts: &[Account]) -> Result<()> {
     execute!(
         stdout(),
