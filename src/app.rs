@@ -37,12 +37,20 @@ impl PasswordManagerApp {
                         .iter()
                         .position(|x| x.label() == account_label)
                         .unwrap();
-                    self.accounts[index] = view::view(self.accounts[index].clone())?;
+                    match view::view(self.accounts[index].clone())? {
+                        Some(account) => self.accounts[index] = account,
+                        None => {
+                            self.accounts.remove(index);
+                        }
+                    }
                 }
                 SearchAction::NewAccount(new_account_label) => {
                     let new_account =
                         view::view(Account::builder().label(new_account_label).build())?;
-                    self.accounts.push(new_account);
+
+                    if let Some(new_account) = new_account {
+                        self.accounts.push(new_account);
+                    }
                 }
                 SearchAction::Exit => break,
             };

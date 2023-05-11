@@ -54,7 +54,7 @@ impl AccountField {
     }
 }
 
-pub fn view(account: Account) -> Result<Account> {
+pub fn view(account: Account) -> Result<Option<Account>> {
     let mut account = account;
     let mut current_field = Label;
     loop {
@@ -65,12 +65,27 @@ pub fn view(account: Account) -> Result<Account> {
                 KeyCode::Char('k') => current_field = current_field.prev(),
                 KeyCode::Char('e') => account = edit(account, current_field)?,
                 KeyCode::Char('y') => yank_current_field(&account, current_field)?,
+                KeyCode::Char('D') => {
+                    if confirm_delete_list()? {
+                        return Ok(None);
+                    }
+                }
                 KeyCode::Esc | KeyCode::Char('q') => break,
                 _ => (),
             }
         }
     }
-    Ok(account)
+    Ok(Some(account))
+}
+
+/// Prompts the user to confirm whether they'd actually like to delete the account being viewed
+///
+/// # Returns
+/// `true` if the user presses y or Y, any other key results in `false`. Otherwise an IO error
+fn confirm_delete_list() -> Result<bool> {
+    execute!(stdout(), cursor::MoveTo(0, 5))?;
+    terminal_drawing::println("Are you sure you want to delete this account? [y/N]")?;
+    terminal_drawing::get_confirmation()
 }
 
 fn yank_current_field(account: &Account, field: AccountField) -> Result<()> {
