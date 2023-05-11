@@ -22,6 +22,15 @@ impl Account {
         self.label.clone()
     }
 
+    /// Sets the Accounts label to the value of new_label
+    ///
+    /// # Arguments
+    ///
+    /// * `new_label` - What the accounts new label should be
+    pub fn set_label(&mut self, new_label: String) {
+        self.label = new_label;
+    }
+
     /// Returns a copy of the Account's email
     ///
     /// # Returns
@@ -30,6 +39,15 @@ impl Account {
     /// email
     pub fn email(&self) -> Option<String> {
         self.email.clone()
+    }
+
+    /// Sets the Accounts email to the value of new_email
+    ///
+    /// # Arguments
+    ///
+    /// * `new_email` - What the accounts new email should be
+    pub fn set_email(&mut self, new_email: Option<String>) {
+        self.email = new_email;
     }
 
     /// Returns a copy of the Account's username
@@ -42,9 +60,27 @@ impl Account {
         self.username.clone()
     }
 
+    /// Sets the Accounts username to the value of new_username
+    ///
+    /// # Arguments
+    ///
+    /// * `new_username` - What the accounts new username should be
+    pub fn set_username(&mut self, new_username: Option<String>) {
+        self.username = new_username;
+    }
+
     /// Returns a clone of the password attached to the account
     pub fn password(&self) -> String {
         self.password.clone()
+    }
+
+    /// Sets the Accounts password to the value of new_password
+    ///
+    /// # Arguments
+    ///
+    /// * `new_password` - What the accounts new password should be
+    pub fn set_password(&mut self, new_password: String) {
+        self.password = new_password;
     }
 
     /// Encrypts the Account into a string with the stored encrypter

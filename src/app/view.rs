@@ -11,7 +11,7 @@ use std::io::stdout;
 use crate::account::Account;
 use crate::terminal_drawing;
 
-use AccountValue::*;
+use AccountField::*;
 
 /// Returns the given label with a whitebox around it as a String
 ///
@@ -19,19 +19,21 @@ use AccountValue::*;
 ///
 /// * `label` - The label in the box
 pub fn box_label<T: ToString>(label: T) -> String {
-    format!(" {} ", label.to_string().black()).on_bright_white().to_string()
+    format!(" {} ", label.to_string().black())
+        .on_bright_white()
+        .to_string()
 }
 
 #[derive(Clone, Copy)]
-enum AccountValue {
+enum AccountField {
     Label,
     Username,
     Email,
     Password,
 }
 
-impl AccountValue {
-    fn next(&self) -> AccountValue {
+impl AccountField {
+    fn next(&self) -> AccountField {
         match self {
             Label => Username,
             Username => Email,
@@ -40,7 +42,7 @@ impl AccountValue {
         }
     }
 
-    fn prev(&self) -> AccountValue {
+    fn prev(&self) -> AccountField {
         match self {
             Label => Password,
             Username => Label,
@@ -51,13 +53,15 @@ impl AccountValue {
 }
 
 pub fn view(account: Account) -> Result<Account> {
-    let mut current_value = Label;
+    let mut account = account;
+    let mut current_field = Label;
     loop {
-        draw_view(&account, current_value)?;
+        draw_view(&account, current_field)?;
         if let Event::Key(key) = read()? {
             match key.code {
-                KeyCode::Char('j') => current_value = current_value.next(),
-                KeyCode::Char('k') => current_value = current_value.prev(),
+                KeyCode::Char('j') => current_field = current_field.next(),
+                KeyCode::Char('k') => current_field = current_field.prev(),
+                KeyCode::Char('e') => account = edit(account, current_field)?,
                 KeyCode::Esc | KeyCode::Char('q') => break,
                 _ => (),
             }
@@ -66,7 +70,53 @@ pub fn view(account: Account) -> Result<Account> {
     Ok(account)
 }
 
-fn draw_view(account: &Account, current_value: AccountValue) -> Result<()> {
+fn edit(account: Account, current_field: AccountField) -> Result<Account> {
+    let mut account = account;
+
+    let (label, content) = match current_field {
+        Label => {
+            cursor::MoveTo(0, 0);
+            ("Label", account.label())
+        }
+        Username => {
+            cursor::MoveTo(0, 1);
+            ("Username", account.username().unwrap_or("".to_string()))
+        }
+        Email => {
+            cursor::MoveTo(0, 2);
+            ("Email", account.email().unwrap_or("".to_string()))
+        }
+        Password => {
+            cursor::MoveTo(0, 3);
+            ("Password", account.password())
+        }
+    };
+
+    let new_value = terminal_drawing::textfield(
+        format!("{} ", box_label(label)),
+        (label.len() + 3) as u16,
+        content,
+    )?;
+
+    if let Some(new_value) = new_value {
+        match current_field {
+            Label => account.set_label(new_value),
+            Username => match new_value.is_empty() {
+                true => account.set_username(Some(new_value)),
+                false => account.set_username(None),
+            },
+            Email => match !new_value.is_empty() {
+                true => account.set_email(Some(new_value)),
+                false => account.set_email(None),
+            },
+            Password => account.set_password(new_value),
+        }
+    }
+
+    Ok(account)
+}
+
+fn draw_view(account: &Account, current_field: AccountField) -> Result<()> {
     execute!(
         stdout(),
         cursor::MoveTo(0, 0),
@@ -97,7 +147,7 @@ fn draw_view(account: &Account, current_value: AccountValue) -> Result<()> {
     ))?;
     terminal_drawing::println(format!(" Password  {}", hidden_password))?;
 
-    match current_value {
+    match current_field {
         Label => {
             execute!(stdout(), cursor::MoveTo(0, 0))?;
             terminal_drawing::print(box_label("Label"))?;
