@@ -27,6 +27,13 @@ use std::io::{
 
 use crate::account::Account;
 
+pub enum DeserialisationResult {
+    NoFileFound,
+    FailedToRead,
+    WrongPassword,
+    Ok(Vec<Account>)
+}
+
 /// Deserialises and decrypts the password file and returns a vector of Accounts
 ///
 /// # Arguments
@@ -42,10 +49,15 @@ pub fn deserialise(
     decrypter: &MagicCrypt256,
     password_file: &str,
     password: &str,
-) -> Result<Vec<Account>> {
-    let mut file = File::open(password_file)?;
+) -> DeserialisationResult {
+    let mut file = match File::open(password_file) {
+        Ok(file) => file,
+        Err(_) => return DeserialisationResult::NoFileFound,
+    };
     let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
+    if let Err(_) = file.read_to_string(&mut contents) {
+        return DeserialisationResult::FailedToRead;
+    }
     let mut lines = contents.lines();
 
     let mut accounts: Vec<Account> = vec![];
@@ -55,8 +67,7 @@ pub fn deserialise(
         .unwrap();
 
     if password != passkey {
-        println!("{}", passkey);
-        panic!("WRONG PASSWORD!");
+        return DeserialisationResult::WrongPassword;
     }
 
     for _ in 0..(lines.clone().count() / 4) {
@@ -78,7 +89,7 @@ pub fn deserialise(
 
         accounts.push(account_builder.decrypt(decrypter.clone()).build());
     }
-    Ok(accounts)
+    DeserialisationResult::Ok(accounts)
 }
 
 /// Serialises the given vector of Accounts in an encrypted format
