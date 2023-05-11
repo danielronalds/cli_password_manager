@@ -8,6 +8,8 @@ use crossterm::{
 };
 use std::io::stdout;
 
+use arboard::Clipboard;
+
 use crate::account::Account;
 use crate::terminal_drawing;
 
@@ -62,12 +64,45 @@ pub fn view(account: Account) -> Result<Account> {
                 KeyCode::Char('j') => current_field = current_field.next(),
                 KeyCode::Char('k') => current_field = current_field.prev(),
                 KeyCode::Char('e') => account = edit(account, current_field)?,
+                KeyCode::Char('y') => yank_current_field(&account, current_field)?,
                 KeyCode::Esc | KeyCode::Char('q') => break,
                 _ => (),
             }
         }
     }
     Ok(account)
+}
+
+fn yank_current_field(account: &Account, field: AccountField) -> Result<()> {
+    let mut clipboard = Clipboard::new().expect("Couldn't access the clipboard");
+    match field {
+        Label => (),
+        Username => {
+            if let Some(username) = account.username() {
+                clipboard
+                    .set_text(username)
+                    .expect("Couldn't access the clipboard")
+            }
+        }
+        Email => {
+            if let Some(email) = account.email() {
+                clipboard
+                    .set_text(email)
+                    .expect("Couldn't access the clipboard")
+            }
+        }
+        Password => clipboard
+            .set_text(account.password())
+            .expect("Couldn't access the clipboard"),
+    }
+
+    execute!(stdout(), cursor::MoveTo(0, 5))?;
+
+    terminal_drawing::println("Yanked! Press any key to wipe the clipboard")?;
+
+    read()?;
+
+    Ok(())
 }
 
 fn edit(account: Account, current_field: AccountField) -> Result<Account> {
