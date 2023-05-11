@@ -39,7 +39,7 @@ fn main() {
 
     let mut app = password_manager::app::PasswordManagerApp::new(accounts);
     match app.run() {
-        Ok(accounts) => serialise(&magic_crypt, accounts, PASSWORD_FILE, FILE_KEY)
+        Ok(accounts) => serialise(&magic_crypt, accounts, PASSWORD_FILE, password.trim())
             .expect("Failed to serialise data"),
         Err(e) => {
             eprintln!("{}", " ERROR ".bright_white().on_bright_red());

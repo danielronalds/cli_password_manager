@@ -136,7 +136,7 @@ fn edit(account: Account, current_field: AccountField) -> Result<Account> {
     if let Some(new_value) = new_value {
         match current_field {
             Label => account.set_label(new_value),
-            Username => match new_value.is_empty() {
+            Username => match !new_value.is_empty() {
                 true => account.set_username(Some(new_value)),
                 false => account.set_username(None),
             },
