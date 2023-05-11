@@ -32,14 +32,22 @@ impl PasswordManagerApp {
             execute!(stdout(), cursor::MoveTo(0, 0), Clear(ClearType::All))?;
             match search_result {
                 SearchAction::ViewAccount(account_label) => {
-                    let index = self.accounts.iter().position(|x| x.label() == account_label).unwrap();
+                    let index = self
+                        .accounts
+                        .iter()
+                        .position(|x| x.label() == account_label)
+                        .unwrap();
                     self.accounts[index] = view::view(self.accounts[index].clone())?;
                 }
-                SearchAction::NewAccount(_) => println!("Create new"),
+                SearchAction::NewAccount(new_account_label) => {
+                    let new_account =
+                        view::view(Account::builder().label(new_account_label).build())?;
+                    self.accounts.push(new_account);
+                }
                 SearchAction::Exit => break,
             };
         }
         disable_raw_mode()?;
-        Ok(vec![])
+        Ok(self.accounts.clone())
     }
 }
