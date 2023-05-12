@@ -1,61 +1,54 @@
+//! This module contains the entry point for the CLI application
 mod search;
 mod view;
 
-use colored::Colorize;
 use crossterm::{
-    cursor::{self, RestorePosition, SavePosition},
-    event::{read, Event, KeyCode},
-    execute,
-    style::Print,
-    terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
+    terminal::{disable_raw_mode, enable_raw_mode},
     Result,
 };
-use std::io::stdout;
 
 use crate::account::Account;
 
 use search::{search, SearchAction};
+use view::view;
 
-pub struct PasswordManagerApp {
-    accounts: Vec<Account>,
-}
+/// The entry point for the password manager application
+///
+/// # Arguments
+///
+/// # `accounts` - The accounts to run the application with
+pub fn run(accounts: Vec<Account>) -> Result<Vec<Account>> {
+    let mut accounts = accounts;
 
-impl PasswordManagerApp {
-    pub fn new(accounts: Vec<Account>) -> Self {
-        Self { accounts }
-    }
+    enable_raw_mode()?;
 
-    pub fn run(&mut self) -> Result<Vec<Account>> {
-        enable_raw_mode()?;
-        loop {
-            let search_result = search(&self.accounts)?;
-            execute!(stdout(), cursor::MoveTo(0, 0), Clear(ClearType::All))?;
-            match search_result {
-                SearchAction::ViewAccount(account_label) => {
-                    let index = self
-                        .accounts
-                        .iter()
-                        .position(|x| x.label() == account_label)
-                        .unwrap();
-                    match view::view(self.accounts[index].clone())? {
-                        Some(account) => self.accounts[index] = account,
-                        None => {
-                            self.accounts.remove(index);
-                        }
+    loop {
+        let search_result = search(&accounts)?;
+        match search_result {
+            SearchAction::ViewAccount(account_label) => {
+                let index = accounts
+                    .iter()
+                    .position(|x| x.label() == account_label)
+                    .unwrap();
+                match view(accounts[index].clone())? {
+                    Some(account) => accounts[index] = account,
+                    None => {
+                        accounts.remove(index);
                     }
                 }
-                SearchAction::NewAccount(new_account_label) => {
-                    let new_account =
-                        view::view(Account::builder().label(new_account_label).build())?;
+            }
+            SearchAction::NewAccount(new_account_label) => {
+                let new_account = view::view(Account::builder().label(new_account_label).build())?;
 
-                    if let Some(new_account) = new_account {
-                        self.accounts.push(new_account);
-                    }
+                if let Some(new_account) = new_account {
+                    accounts.push(new_account);
                 }
-                SearchAction::Exit => break,
-            };
-        }
-        disable_raw_mode()?;
-        Ok(self.accounts.clone())
+            }
+            SearchAction::Exit => break,
+        };
     }
+
+    disable_raw_mode()?;
+
+    Ok(accounts)
 }

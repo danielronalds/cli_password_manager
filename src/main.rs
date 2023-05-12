@@ -37,8 +37,7 @@ fn main() {
         DeserialisationResult::Ok(accounts) => accounts,
     };
 
-    let mut app = password_manager::app::PasswordManagerApp::new(accounts);
-    match app.run() {
+    match password_manager::app::run(accounts) {
         Ok(accounts) => serialise(&magic_crypt, accounts, PASSWORD_FILE, password.trim())
             .expect("Failed to serialise data"),
         Err(e) => {
