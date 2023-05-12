@@ -1,3 +1,5 @@
+//! This module contains everything thing to do with viewing an account in the application
+
 use colored::Colorize;
 use crossterm::{
     cursor,
@@ -26,6 +28,7 @@ pub fn box_label<T: ToString>(label: T) -> String {
         .to_string()
 }
 
+/// Enum that contains all the fields in the Account struct
 #[derive(Clone, Copy)]
 enum AccountField {
     Label,
@@ -35,6 +38,7 @@ enum AccountField {
 }
 
 impl AccountField {
+    /// Returns what the next field is
     fn next(&self) -> AccountField {
         match self {
             Label => Username,
@@ -44,6 +48,7 @@ impl AccountField {
         }
     }
 
+    /// Returns what the previous field is
     fn prev(&self) -> AccountField {
         match self {
             Label => Password,
@@ -54,6 +59,16 @@ impl AccountField {
     }
 }
 
+/// Entry point for the view page of the application. Allows the user to yank details like a
+/// password into their system's clipboard, edit details to do with that account, and delete it.
+///
+/// # Arguments
+///
+/// * `account` - The account to view
+///
+/// # Returns
+///
+/// Either the account with the changes made, None if the user deletes it, or an IO error
 pub fn view(account: Account) -> Result<Option<Account>> {
     let mut account = account;
     let mut current_field = Label;
@@ -88,8 +103,21 @@ fn confirm_delete_list() -> Result<bool> {
     terminal_drawing::get_confirmation()
 }
 
+/// Yanks the given field in the Account into the clipboard. For some reason this only works
+/// while this function doesn't return, so at the end of a function there is a `read()` call, to
+/// prevent the function from returning until a key is pressed.
+///
+/// # Arguments
+///
+/// * `account` - The account to yank the field from
+/// * `field`   - The field to yank
+///
+/// # Returns
+///
+/// Can return an IO error
 fn yank_current_field(account: &Account, field: AccountField) -> Result<()> {
     let mut clipboard = Clipboard::new().expect("Couldn't access the clipboard");
+    // Yanking the given field to the clipboard
     match field {
         Label => (),
         Username => {
@@ -111,6 +139,7 @@ fn yank_current_field(account: &Account, field: AccountField) -> Result<()> {
             .expect("Couldn't access the clipboard"),
     }
 
+    // Pausing execution so that the field stays in the clipboard
     execute!(stdout(), cursor::MoveTo(0, 5))?;
 
     terminal_drawing::println("Yanked! Press any key to wipe the clipboard")?;
@@ -120,9 +149,21 @@ fn yank_current_field(account: &Account, field: AccountField) -> Result<()> {
     Ok(())
 }
 
+/// Allows the user to edit the given field with a textfield
+///
+/// # Arguments
+///
+/// * `account`       - The account of the field to edit
+/// * `current_field` - The field to edit
+///
+/// # Returns
+///
+/// An `Account` with the field with the user's edits, or an IO error
 fn edit(account: Account, current_field: AccountField) -> Result<Account> {
     let mut account = account;
 
+    // Figuring out what field to edit, getting the details to pass to the textfield and moving the
+    // cursor to the fields line
     let (label, content) = match current_field {
         Label => {
             cursor::MoveTo(0, 0);
@@ -148,6 +189,7 @@ fn edit(account: Account, current_field: AccountField) -> Result<Account> {
         content,
     )?;
 
+    // Making the edit if an edit was made
     if let Some(new_value) = new_value {
         match current_field {
             Label => account.set_label(new_value),
@@ -166,7 +208,14 @@ fn edit(account: Account, current_field: AccountField) -> Result<Account> {
     Ok(account)
 }
 
+/// Draws the view page to the terminal
+///
+/// # Arguments
+///
+/// * `account`       - The account to view
+/// * `current_field` - The current selected field
 fn draw_view(account: &Account, current_field: AccountField) -> Result<()> {
+    // Setting up the terminal screen
     execute!(
         stdout(),
         cursor::MoveTo(0, 0),
@@ -174,12 +223,14 @@ fn draw_view(account: &Account, current_field: AccountField) -> Result<()> {
         cursor::Hide
     )?;
 
+    // Hiding the password
     let mut hidden_password = String::new();
 
     for _ in account.password().chars() {
         hidden_password.push('*');
     }
 
+    // Drawing the initial list
     terminal_drawing::println(format!(" Label  {}", account.label()))?;
     terminal_drawing::println(format!(
         " Username  {}",
@@ -197,6 +248,7 @@ fn draw_view(account: &Account, current_field: AccountField) -> Result<()> {
     ))?;
     terminal_drawing::println(format!(" Password  {}", hidden_password))?;
 
+    // Replacing the current fields normal label with the selected field version
     match current_field {
         Label => {
             execute!(stdout(), cursor::MoveTo(0, 0))?;
