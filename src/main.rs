@@ -4,11 +4,8 @@ use password_manager::serialisation::{deserialise, serialise, DeserialisationRes
 use std::io::Write;
 
 const PASSWORD_FILE: &str = "testing.txt";
-const FILE_KEY: &str = "password";
 
 fn main() {
-    let magic_crypt = new_magic_crypt!("thisIsMyPasswordKeyItsSuperLong", 256);
-
     // Get the password from the user
     let mut password = String::new();
 
@@ -21,17 +18,28 @@ fn main() {
         return;
     }
 
+    let magic_crypt = new_magic_crypt!(password.trim(), 256);
+
     let accounts = match deserialise(&magic_crypt, PASSWORD_FILE, password.trim()) {
         DeserialisationResult::NoFileFound => {
-            eprintln!("{} Password file not found!", " ERROR ".bright_white().on_red());
+            eprintln!(
+                "{} Password file not found!",
+                " ERROR ".bright_white().on_red()
+            );
             return;
         }
         DeserialisationResult::FailedToRead => {
-            eprintln!("{} Failed to read the file!", " ERROR ".bright_white().on_red());
+            eprintln!(
+                "{} Failed to read the file!",
+                " ERROR ".bright_white().on_red()
+            );
             return;
         }
         DeserialisationResult::WrongPassword => {
-            eprintln!("{} Thats the wrong password!", " ERROR ".bright_white().on_red());
+            eprintln!(
+                "{} Thats the wrong password!",
+                " ERROR ".bright_white().on_red()
+            );
             return;
         }
         DeserialisationResult::Ok(accounts) => accounts,

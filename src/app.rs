@@ -3,7 +3,7 @@ mod search;
 mod view;
 
 use crossterm::{
-    terminal::{disable_raw_mode, enable_raw_mode},
+    terminal::{self, disable_raw_mode, enable_raw_mode},
     Result,
 };
 
@@ -47,6 +47,8 @@ pub fn run(accounts: Vec<Account>) -> Result<Vec<Account>> {
             SearchAction::Exit => break,
         };
     }
+
+    crossterm::execute!(std::io::stdout(), terminal::Clear(terminal::ClearType::All))?;
 
     disable_raw_mode()?;
 

@@ -31,7 +31,7 @@ pub enum DeserialisationResult {
     NoFileFound,
     FailedToRead,
     WrongPassword,
-    Ok(Vec<Account>)
+    Ok(Vec<Account>),
 }
 
 /// Deserialises and decrypts the password file and returns a vector of Accounts
@@ -62,9 +62,13 @@ pub fn deserialise(
 
     let mut accounts: Vec<Account> = vec![];
 
-    let passkey = decrypter
-        .decrypt_base64_to_string(lines.next().expect("Should be safe to unwrap"))
-        .unwrap();
+    // For some reason, if the wrong password is entered then this fails... so I'm keeping both in
+    // just in case. Shitty work around codding is here!
+    let passkey =
+        match decrypter.decrypt_base64_to_string(lines.next().expect("Should be safe to unwrap")) {
+            Ok(passkey) => passkey,
+            Err(_) => return DeserialisationResult::WrongPassword,
+        };
 
     if password != passkey {
         return DeserialisationResult::WrongPassword;
