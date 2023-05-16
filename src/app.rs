@@ -2,22 +2,35 @@
 mod search;
 mod view;
 
-use crossterm::{
-    terminal::{self, disable_raw_mode, enable_raw_mode},
-    Result,
-};
+use crossterm::terminal::{self, disable_raw_mode, enable_raw_mode};
 
 use crate::account::Account;
 
 use search::{search, SearchAction};
 use view::view;
 
+use std::io::Write;
+
+/// Prompts the user to login
+///
+/// # Returns
+///
+/// Either the password the user entered, or an io error
+pub fn login() -> std::io::Result<String> {
+    print!("{} ", view::box_label("Enter Password"));
+    std::io::stdout().flush().expect("Failed to flush");
+
+    let mut password = String::new();
+    std::io::stdin().read_line(&mut password)?;
+    Ok(password)
+}
+
 /// The entry point for the password manager application
 ///
 /// # Arguments
 ///
 /// # `accounts` - The accounts to run the application with
-pub fn run(accounts: Vec<Account>) -> Result<Vec<Account>> {
+pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
     let mut accounts = accounts;
 
     enable_raw_mode()?;

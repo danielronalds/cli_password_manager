@@ -21,44 +21,47 @@ use magic_crypt::{MagicCrypt256, MagicCryptTrait};
 
 use std::fs::File;
 use std::io::{
+    self,
     prelude::{Read, Write},
-    Result,
 };
 
 use crate::account::Account;
 
 pub enum DeserialisationResult {
-    NoFileFound,
-    FailedToRead,
     WrongPassword,
     Ok(Vec<Account>),
+}
+
+/// Reads the password file contents to a string
+///
+/// # Returns
+///
+/// Either the file contents or an io error. If it returns an io error it is likely the file does
+/// not exist, or cannot be read
+pub fn read_password_file(filename: &str) -> io::Result<String> {
+    let mut file = File::open(filename)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+    Ok(contents)
 }
 
 /// Deserialises and decrypts the password file and returns a vector of Accounts
 ///
 /// # Arguments
 ///
-/// * `decrypter`     - The thing to decrypt with
-/// * `password_file` - The name of the file containing the encrypted passwords
-/// * `password`      - The password that the user has entered to login
+/// * `decrypter`              - The thing to decrypt with
+/// * `password_file_contents` - The contents of the password file
+/// * `password`               - The password that the user has entered to login
 ///
 /// # Returns
 ///
 /// A result either containing the vector of accounts or an IO error
 pub fn deserialise(
     decrypter: &MagicCrypt256,
-    password_file: &str,
+    password_file_contents: String,
     password: &str,
 ) -> DeserialisationResult {
-    let mut file = match File::open(password_file) {
-        Ok(file) => file,
-        Err(_) => return DeserialisationResult::NoFileFound,
-    };
-    let mut contents = String::new();
-    if let Err(_) = file.read_to_string(&mut contents) {
-        return DeserialisationResult::FailedToRead;
-    }
-    let mut lines = contents.lines();
+    let mut lines = password_file_contents.lines();
 
     let mut accounts: Vec<Account> = vec![];
 
@@ -109,7 +112,7 @@ pub fn serialise(
     accounts: Vec<Account>,
     password_file: &str,
     password: &str,
-) -> Result<()> {
+) -> io::Result<()> {
     let mut file = File::create(password_file)?;
 
     writeln!(file, "{}", encrypter.encrypt_str_to_base64(password))
