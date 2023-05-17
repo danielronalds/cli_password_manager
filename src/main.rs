@@ -1,33 +1,15 @@
 use colored::Colorize;
 use magic_crypt::new_magic_crypt;
-use password_manager::serialisation::{deserialise, serialise, DeserialisationResult, read_password_file};
+use password_manager::serialisation::{
+    deserialise, read_password_file, serialise, DeserialisationResult,
+};
 
 const PASSWORD_FILE: &str = "testing.txt";
 
 fn main() {
-    let password_file = match read_password_file(PASSWORD_FILE) {
-        Ok(file) => file,
-        Err(_) => {
-            eprintln!(
-                "{} Password file not found!",
-                " ERROR ".bright_white().on_red()
-            );
-            return;
-        }
-    };
-
-    let password = password_manager::app::login().unwrap();
-    let magic_crypt = new_magic_crypt!(password.trim(), 256);
-
-    let accounts = match deserialise(&magic_crypt, password_file, password.trim()) {
-        DeserialisationResult::WrongPassword => {
-            eprintln!(
-                "{} Thats the wrong password!",
-                " WARNING ".black().on_yellow()
-            );
-            return;
-        }
-        DeserialisationResult::Ok(accounts) => accounts,
+    let (accounts, password, magic_crypt) = match password_manager::app::setup(PASSWORD_FILE) {
+        Some(config) => config,
+        None => return,
     };
 
     match password_manager::app::run(accounts) {
