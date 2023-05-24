@@ -166,19 +166,19 @@ fn edit(account: Account, current_field: AccountField) -> Result<Account> {
     // cursor to the fields line
     let (label, content) = match current_field {
         Label => {
-            cursor::MoveTo(0, 0);
+            execute!(stdout(), cursor::MoveTo(0, 0))?;
             ("Label", account.label())
         }
         Username => {
-            cursor::MoveTo(0, 1);
+            execute!(stdout(), cursor::MoveTo(0, 1))?;
             ("Username", account.username().unwrap_or("".to_string()))
         }
         Email => {
-            cursor::MoveTo(0, 2);
+            execute!(stdout(), cursor::MoveTo(0, 2))?;
             ("Email", account.email().unwrap_or("".to_string()))
         }
         Password => {
-            cursor::MoveTo(0, 3);
+            execute!(stdout(), cursor::MoveTo(0, 3))?;
             ("Password", account.password())
         }
     };

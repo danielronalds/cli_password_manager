@@ -300,3 +300,9 @@ impl AccountBuilder {
         self
     }
 }
+
+impl Default for AccountBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}

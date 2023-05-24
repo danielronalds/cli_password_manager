@@ -1,4 +1,3 @@
-use colored::Colorize;
 use crossterm::{
     cursor,
     event::{read, Event, KeyCode},
@@ -29,8 +28,7 @@ pub fn println<T: ToString>(text: T) -> Result<()> {
 /// * `text` - The text to write to stdout
 ///
 pub fn print<T: ToString>(text: T) -> Result<()> {
-    let text = format!("{}", text.to_string());
-    execute!(stdout(), Print(text))?;
+    execute!(stdout(), Print(text.to_string()))?;
     Ok(())
 }
 

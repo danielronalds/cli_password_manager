@@ -1,8 +1,5 @@
 use colored::Colorize;
-use magic_crypt::new_magic_crypt;
-use password_manager::serialisation::{
-    deserialise, read_password_file, serialise, DeserialisationResult,
-};
+use password_manager::serialisation::serialise;
 
 const PASSWORD_FILE: &str = "testing.txt";
 

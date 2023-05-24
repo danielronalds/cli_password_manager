@@ -119,7 +119,7 @@ pub fn serialise(
         .expect("Failed to write passkey");
 
     for account in accounts {
-        writeln!(file, "{}", account.encrypt(&encrypter))?;
+        writeln!(file, "{}", account.encrypt(encrypter))?;
     }
 
     file.flush()?;

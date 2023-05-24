@@ -53,7 +53,7 @@ pub fn setup(password_file: &str) -> Option<(Vec<Account>, String, magic_crypt::
                         "{} Thats the wrong password!",
                         " WARNING ".black().on_yellow()
                     );
-                    return None;
+                    None
                 }
                 DeserialisationResult::Ok(accounts) => Some((accounts, password, magic_crypt)),
             }

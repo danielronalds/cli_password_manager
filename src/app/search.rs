@@ -24,9 +24,9 @@ pub enum SearchAction {
     Exit,
 }
 
-pub fn search(accounts: &Vec<Account>) -> Result<SearchAction> {
+pub fn search(accounts: &[Account]) -> Result<SearchAction> {
     let mut search_term = String::new();
-    let mut filtered_accounts = accounts.clone();
+    let mut filtered_accounts = accounts.to_owned();
     let mut search_over = false;
 
     loop {
@@ -41,7 +41,7 @@ pub fn search(accounts: &Vec<Account>) -> Result<SearchAction> {
             SearchResult::Exit => return Ok(SearchAction::Exit),
         };
         if search_term.is_empty() && !search_over {
-            filtered_accounts = accounts.clone();
+            filtered_accounts = accounts.to_owned();
             continue;
         }
         // This algorithim really needs some work... DON'T FORGET TO CHANGE THIS
@@ -82,7 +82,7 @@ fn search_textfield(prompt: String, prompt_len: u16, content: String) -> Result<
     execute!(stdout(), cursor::Show, cursor::SetCursorStyle::SteadyBlock)?;
 
     let mut output = content;
-    let prompt = prompt.to_string();
+    let prompt = prompt;
 
     let cursor = output.len();
 
