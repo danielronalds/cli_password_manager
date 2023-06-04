@@ -1,13 +1,18 @@
 //! This module contains the entry point for the CLI application
+mod home;
 mod search;
 mod view;
 
 use colored::Colorize;
-use crossterm::terminal::{self, disable_raw_mode, enable_raw_mode};
+use crossterm::{
+    terminal::{self, disable_raw_mode, enable_raw_mode},
+    cursor
+};
 use magic_crypt::new_magic_crypt;
 
 use crate::account::Account;
 
+use home::{home, PageOption};
 use search::{search, SearchAction};
 use view::view;
 
@@ -89,32 +94,45 @@ pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
     enable_raw_mode()?;
 
     loop {
-        let search_result = search(&accounts)?;
-        match search_result {
-            SearchAction::ViewAccount(account_label) => {
-                let index = accounts
-                    .iter()
-                    .position(|x| x.label() == account_label)
-                    .unwrap();
-                match view(accounts[index].clone())? {
-                    Some(account) => accounts[index] = account,
-                    None => {
-                        accounts.remove(index);
+        match home()? {
+            PageOption::Search => loop {
+                let search_result = search(&accounts)?;
+                match search_result {
+                    SearchAction::ViewAccount(account_label) => {
+                        let index = accounts
+                            .iter()
+                            .position(|x| x.label() == account_label)
+                            .unwrap();
+                        match view(accounts[index].clone())? {
+                            Some(account) => accounts[index] = account,
+                            None => {
+                                accounts.remove(index);
+                            }
+                        }
                     }
-                }
-            }
-            SearchAction::NewAccount(new_account_label) => {
-                let new_account = view::view(Account::builder().label(new_account_label).build())?;
+                    SearchAction::NewAccount(new_account_label) => {
+                        let new_account =
+                            view::view(Account::builder().label(new_account_label).build())?;
 
-                if let Some(new_account) = new_account {
-                    accounts.push(new_account);
-                }
-            }
-            SearchAction::Exit => break,
-        };
+                        if let Some(new_account) = new_account {
+                            accounts.push(new_account);
+                        }
+                    }
+                    SearchAction::Exit => break,
+                };
+            },
+            PageOption::Settings => unimplemented!(),
+            PageOption::Help => unimplemented!(),
+            PageOption::Exit => break,
+        }
     }
 
-    crossterm::execute!(std::io::stdout(), terminal::Clear(terminal::ClearType::All))?;
+    crossterm::execute!(
+        std::io::stdout(),
+        cursor::MoveTo(0, 0),
+        terminal::Clear(terminal::ClearType::All),
+        cursor::Show
+    )?;
 
     disable_raw_mode()?;
 
