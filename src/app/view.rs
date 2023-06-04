@@ -119,7 +119,7 @@ fn yank_current_field(account: &Account, field: AccountField) -> Result<()> {
     let mut clipboard = Clipboard::new().expect("Couldn't access the clipboard");
     // Yanking the given field to the clipboard
     match field {
-        Label => (),
+        Label => return Ok(()),
         Username => {
             if let Some(username) = account.username() {
                 clipboard
@@ -142,9 +142,9 @@ fn yank_current_field(account: &Account, field: AccountField) -> Result<()> {
     // Pausing execution so that the field stays in the clipboard
     execute!(stdout(), cursor::MoveTo(0, 5))?;
 
-    terminal_drawing::println("Yanked! Press any key to wipe the clipboard")?;
+    terminal_drawing::println("Yanked! Press 'y' to wipe the clipboard")?;
 
-    read()?;
+    while !terminal_drawing::get_confirmation()? {} // While loop runs until the user press y
 
     Ok(())
 }
