@@ -84,16 +84,17 @@ fn draw_home(current_option: PageOption) -> Result<()> {
         cursor::Hide
     )?;
 
+    terminal_drawing::println(format!("Password Manager v{}", env!("CARGO_PKG_VERSION")))?;
     terminal_drawing::println(" Search Accounts ")?;
     terminal_drawing::println(" Settings ")?;
     terminal_drawing::println(" Help ")?;
     terminal_drawing::println(" Exit ")?;
 
     let current_option_line = match current_option {
-        Search => 0,
-        Settings => 1,
-        Help => 2,
-        Exit => 3,
+        Search => 1,
+        Settings => 2,
+        Help => 3,
+        Exit => 4,
     };
 
     let selected_text = match current_option {
