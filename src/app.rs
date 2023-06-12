@@ -1,15 +1,17 @@
 //! This module contains the entry point for the CLI application
+mod change_password;
 mod home;
 mod search;
 mod view;
 
+use crate::account::Account;
 use colored::Colorize;
 use crossterm::{
     cursor,
     terminal::{self, disable_raw_mode, enable_raw_mode},
 };
-use crate::account::Account;
 
+use change_password::change_password;
 use home::{home, PageOption};
 use search::{search, SearchAction};
 use view::view;
@@ -83,9 +85,15 @@ pub fn setup(password_file: &str) -> Option<(Vec<Account>, String)> {
 ///
 /// # Arguments
 ///
-/// # `accounts` - The accounts to run the application with
-pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
+/// * `accounts` - The accounts to run the application with
+/// * `password` - The password to the vault
+///
+/// # Returns
+///
+/// A tuple with a Vec of accounts and the vaults password
+pub fn run(accounts: Vec<Account>, password: String) -> crossterm::Result<(Vec<Account>, String)> {
     let mut accounts = accounts;
+    let mut password = password.to_string();
 
     enable_raw_mode()?;
 
@@ -123,7 +131,11 @@ pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
                     SearchAction::Exit => break,
                 };
             },
-            PageOption::ChangePassword => unimplemented!(),
+            PageOption::ChangePassword => {
+                if let Some(new_password) = change_password(&password.trim())? {
+                    password = new_password;
+                }
+            }
             PageOption::Help => unimplemented!(),
             PageOption::Exit => break,
         }
@@ -138,7 +150,7 @@ pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
 
     disable_raw_mode()?;
 
-    Ok(accounts)
+    Ok((accounts, password))
 }
 
 /// Returns whether the given accounts slice has an account with the given label

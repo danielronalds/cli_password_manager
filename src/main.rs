@@ -9,8 +9,8 @@ fn main() {
         None => return,
     };
 
-    match password_manager::app::run(accounts) {
-        Ok(accounts) => serialise(accounts, PASSWORD_FILE, password.trim())
+    match password_manager::app::run(accounts, password) {
+        Ok((accounts, password)) => serialise(accounts, PASSWORD_FILE, password.trim())
             .expect("Failed to serialise data"),
         Err(e) => {
             eprintln!("{}", " ERROR ".bright_white().on_bright_red());
