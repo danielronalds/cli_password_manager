@@ -30,7 +30,7 @@ fn box_label<T: ToString>(label: T) -> String {
 #[derive(Clone, Copy)]
 pub enum PageOption {
     Search,
-    Settings,
+    ChangePassword,
     Help,
     Exit,
 }
@@ -38,8 +38,8 @@ pub enum PageOption {
 impl PageOption {
     pub fn next(&self) -> Self {
         match self {
-            Search => Settings,
-            Settings => Help,
+            Search => ChangePassword,
+            ChangePassword => Help,
             Help => Exit,
             Exit => Search
         }
@@ -48,8 +48,8 @@ impl PageOption {
     pub fn prev(&self) -> Self {
         match self {
             Search => Exit,
-            Settings => Search,
-            Help => Settings,
+            ChangePassword => Search,
+            Help => ChangePassword,
             Exit => Help
         }
     }
@@ -86,20 +86,20 @@ fn draw_home(current_option: PageOption) -> Result<()> {
 
     terminal_drawing::println(format!("Password Manager v{}", env!("CARGO_PKG_VERSION")))?;
     terminal_drawing::println(" Search Accounts ")?;
-    terminal_drawing::println(" Settings ")?;
+    terminal_drawing::println(" Change Password ")?;
     terminal_drawing::println(" Help ")?;
     terminal_drawing::println(" Exit ")?;
 
     let current_option_line = match current_option {
         Search => 1,
-        Settings => 2,
+        ChangePassword => 2,
         Help => 3,
         Exit => 4,
     };
 
     let selected_text = match current_option {
         Search => box_label("Search Accounts"), 
-        Settings => box_label("Settings"), 
+        ChangePassword => box_label("Change Password"), 
         Help => box_label("Help"), 
         Exit => box_label("Exit"), 
     };

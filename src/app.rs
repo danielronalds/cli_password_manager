@@ -123,7 +123,7 @@ pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
                     SearchAction::Exit => break,
                 };
             },
-            PageOption::Settings => unimplemented!(),
+            PageOption::ChangePassword => unimplemented!(),
             PageOption::Help => unimplemented!(),
             PageOption::Exit => break,
         }
