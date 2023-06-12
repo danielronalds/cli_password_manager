@@ -5,8 +5,8 @@ mod view;
 
 use colored::Colorize;
 use crossterm::{
+    cursor,
     terminal::{self, disable_raw_mode, enable_raw_mode},
-    cursor
 };
 use magic_crypt::new_magic_crypt;
 
@@ -104,7 +104,11 @@ pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
                             .position(|x| x.label() == account_label)
                             .unwrap();
                         match view(accounts[index].clone())? {
-                            Some(account) => accounts[index] = account,
+                            Some(account) => {
+                                if !account_with_label(&accounts, &account.label()) {
+                                    accounts[index] = account;
+                                }
+                            }
                             None => {
                                 accounts.remove(index);
                             }
@@ -115,7 +119,9 @@ pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
                             view::view(Account::builder().label(new_account_label).build())?;
 
                         if let Some(new_account) = new_account {
-                            accounts.push(new_account);
+                            if !account_with_label(&accounts, &new_account.label()) {
+                                accounts.push(new_account);
+                            }
                         }
                     }
                     SearchAction::Exit => break,
@@ -137,4 +143,38 @@ pub fn run(accounts: Vec<Account>) -> crossterm::Result<Vec<Account>> {
     disable_raw_mode()?;
 
     Ok(accounts)
+}
+
+/// Returns whether the given accounts slice has an account with the given label
+///
+/// # Arguments
+///
+/// * `accounts` - The slice of accounts
+/// * `new_label` - The label to search for a clash with
+fn account_with_label(accounts: &[Account], new_label: &str) -> bool {
+    for account in accounts {
+        if account.label() == new_label {
+            return true;
+        }
+    }
+    false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::account_with_label;
+    use crate::account::Account;
+    #[test]
+    /// This function tests that the account_with_label() function works as expected
+    fn account_with_label_works() {
+        let accounts = vec![
+            Account::builder().label("Test 1").build(),
+            Account::builder().label("Test 2").build(),
+            Account::builder().label("Test 3").build(),
+        ];
+
+        assert!(account_with_label(&accounts, "Test 1"));
+        assert!(account_with_label(&accounts, "Test 2"));
+        assert!(!account_with_label(&accounts, "Test 4"));
+    }
 }
