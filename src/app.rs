@@ -8,8 +8,6 @@ use crossterm::{
     cursor,
     terminal::{self, disable_raw_mode, enable_raw_mode},
 };
-use magic_crypt::new_magic_crypt;
-
 use crate::account::Account;
 
 use home::{home, PageOption};
@@ -46,13 +44,12 @@ pub fn login() -> std::io::Result<String> {
 ///
 /// `None` if the user enters the wrong password or chooses to not create a password file.
 /// Otherwise a tuple with a vectors of Accounts, the entered password, then the codec used.
-pub fn setup(password_file: &str) -> Option<(Vec<Account>, String, magic_crypt::MagicCrypt256)> {
+pub fn setup(password_file: &str) -> Option<(Vec<Account>, String)> {
     match read_password_file(password_file) {
         Ok(password_file) => {
             let password = login().unwrap();
-            let magic_crypt = new_magic_crypt!(password.trim(), 256);
 
-            match deserialise(&magic_crypt, password_file, password.trim()) {
+            match deserialise(password_file, password.trim()) {
                 DeserialisationResult::WrongPassword => {
                     eprintln!(
                         "{} Thats the wrong password!",
@@ -60,7 +57,7 @@ pub fn setup(password_file: &str) -> Option<(Vec<Account>, String, magic_crypt::
                     );
                     None
                 }
-                DeserialisationResult::Ok(accounts) => Some((accounts, password, magic_crypt)),
+                DeserialisationResult::Ok(accounts) => Some((accounts, password)),
             }
         }
         Err(_) => {
@@ -74,8 +71,7 @@ pub fn setup(password_file: &str) -> Option<(Vec<Account>, String, magic_crypt::
 
             if confirmation {
                 let password = login().unwrap();
-                let magic_crypt = new_magic_crypt!(password.trim(), 256);
-                return Some((vec![], password, magic_crypt));
+                return Some((vec![], password));
             }
 
             None

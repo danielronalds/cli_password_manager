@@ -17,7 +17,7 @@
 //!
 //! Accounts that do not have an email or a username have blank lines instead
 
-use magic_crypt::{MagicCrypt256, MagicCryptTrait};
+use magic_crypt::{MagicCryptTrait, new_magic_crypt};
 
 use std::fs::File;
 use std::io::{
@@ -49,7 +49,6 @@ pub fn read_password_file(filename: &str) -> io::Result<String> {
 ///
 /// # Arguments
 ///
-/// * `decrypter`              - The thing to decrypt with
 /// * `password_file_contents` - The contents of the password file
 /// * `password`               - The password that the user has entered to login
 ///
@@ -57,13 +56,14 @@ pub fn read_password_file(filename: &str) -> io::Result<String> {
 ///
 /// A result either containing the vector of accounts or an IO error
 pub fn deserialise(
-    decrypter: &MagicCrypt256,
     password_file_contents: String,
     password: &str,
 ) -> DeserialisationResult {
     let mut lines = password_file_contents.lines();
 
     let mut accounts: Vec<Account> = vec![];
+
+    let decrypter = new_magic_crypt!(password.trim(), 256);
 
     // For some reason, if the wrong password is entered then this fails... so I'm keeping both in
     // just in case. Shitty work around codding is here!
@@ -108,18 +108,19 @@ pub fn deserialise(
 /// * `password_file` - The name of the file to serialise to
 /// * `password`      - The user's password to verify against
 pub fn serialise(
-    encrypter: &MagicCrypt256,
     accounts: Vec<Account>,
     password_file: &str,
     password: &str,
 ) -> io::Result<()> {
     let mut file = File::create(password_file)?;
 
+    let encrypter = new_magic_crypt!(password.trim(), 256);
+
     writeln!(file, "{}", encrypter.encrypt_str_to_base64(password))
         .expect("Failed to write passkey");
 
     for account in accounts {
-        writeln!(file, "{}", account.encrypt(encrypter))?;
+        writeln!(file, "{}", account.encrypt(&encrypter))?;
     }
 
     file.flush()?;
