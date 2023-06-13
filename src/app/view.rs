@@ -1,6 +1,5 @@
 //! This module contains everything thing to do with viewing an account in the application
 
-use colored::Colorize;
 use crossterm::{
     cursor,
     event::{read, Event, KeyCode},
@@ -13,20 +12,9 @@ use std::io::stdout;
 use arboard::Clipboard;
 
 use crate::account::Account;
-use crate::terminal_drawing;
+use crate::terminal_drawing::{box_label, get_confirmation, print, println, textfield};
 
 use AccountField::*;
-
-/// Returns the given label with a whitebox around it as a String
-///
-/// # Arguments
-///
-/// * `label` - The label in the box
-pub fn box_label<T: ToString>(label: T) -> String {
-    format!(" {} ", label.to_string().black())
-        .on_bright_white()
-        .to_string()
-}
 
 /// Enum that contains all the fields in the Account struct
 #[derive(Clone, Copy)]
@@ -99,8 +87,8 @@ pub fn view(account: Account) -> Result<Option<Account>> {
 /// `true` if the user presses y or Y, any other key results in `false`. Otherwise an IO error
 fn confirm_delete_list() -> Result<bool> {
     execute!(stdout(), cursor::MoveTo(0, 5))?;
-    terminal_drawing::println("Are you sure you want to delete this account? [y/N]")?;
-    terminal_drawing::get_confirmation()
+    println("Are you sure you want to delete this account? [y/N]")?;
+    get_confirmation()
 }
 
 /// Yanks the given field in the Account into the clipboard. For some reason this only works
@@ -142,9 +130,9 @@ fn yank_current_field(account: &Account, field: AccountField) -> Result<()> {
     // Pausing execution so that the field stays in the clipboard
     execute!(stdout(), cursor::MoveTo(0, 5))?;
 
-    terminal_drawing::println("Yanked! Press 'y' to wipe the clipboard")?;
+    println("Yanked! Press 'y' to wipe the clipboard")?;
 
-    while !terminal_drawing::get_confirmation()? {} // While loop runs until the user press y
+    while !get_confirmation()? {} // While loop runs until the user press y
 
     Ok(())
 }
@@ -183,7 +171,7 @@ fn edit(account: Account, current_field: AccountField) -> Result<Account> {
         }
     };
 
-    let new_value = terminal_drawing::textfield(
+    let new_value = textfield(
         format!("{} ", box_label(label)),
         (label.len() + 3) as u16,
         content,
@@ -231,40 +219,40 @@ fn draw_view(account: &Account, current_field: AccountField) -> Result<()> {
     }
 
     // Drawing the initial list
-    terminal_drawing::println(format!(" Label  {}", account.label()))?;
-    terminal_drawing::println(format!(
+    println(format!(" Label  {}", account.label()))?;
+    println(format!(
         " Username  {}",
         match account.username() {
             Some(username) => username,
             None => "".to_string(),
         }
     ))?;
-    terminal_drawing::println(format!(
+    println(format!(
         " Email  {}",
         match account.email() {
             Some(email) => email,
             None => "".to_string(),
         }
     ))?;
-    terminal_drawing::println(format!(" Password  {}", hidden_password))?;
+    println(format!(" Password  {}", hidden_password))?;
 
     // Replacing the current fields normal label with the selected field version
     match current_field {
         Label => {
             execute!(stdout(), cursor::MoveTo(0, 0))?;
-            terminal_drawing::print(box_label("Label"))?;
+            print(box_label("Label"))?;
         }
         Username => {
             execute!(stdout(), cursor::MoveTo(0, 1))?;
-            terminal_drawing::print(box_label("Username"))?;
+            print(box_label("Username"))?;
         }
         Email => {
             execute!(stdout(), cursor::MoveTo(0, 2))?;
-            terminal_drawing::print(box_label("Email"))?;
+            print(box_label("Email"))?;
         }
         Password => {
             execute!(stdout(), cursor::MoveTo(0, 3))?;
-            terminal_drawing::print(box_label("Password"))?;
+            print(box_label("Password"))?;
         }
     };
 

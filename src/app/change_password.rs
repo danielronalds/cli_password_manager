@@ -1,5 +1,6 @@
-use crate::terminal_drawing::textfield;
-use colored::Colorize;
+//! This module contains the change password screen logic
+
+use crate::terminal_drawing::{box_label, textfield};
 use crossterm::{
     cursor, execute,
     terminal::{Clear, ClearType},
@@ -50,17 +51,6 @@ pub fn change_password(old_password: &str) -> crossterm::Result<Option<String>> 
     }
 
     Ok(Some(new_password))
-}
-
-/// Returns the given label with a whitebox around it as a String
-///
-/// # Arguments
-///
-/// * `label` - The label in the box
-fn box_label<T: ToString>(label: T) -> String {
-    format!(" {} ", label.to_string().black())
-        .on_bright_white()
-        .to_string()
 }
 
 fn clear_screen() -> crossterm::Result<()> {

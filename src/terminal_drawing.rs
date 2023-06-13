@@ -1,3 +1,5 @@
+//! This module contains terminal drawing and text formating functions 
+
 use crossterm::{
     cursor,
     event::{read, Event, KeyCode},
@@ -6,7 +8,19 @@ use crossterm::{
     terminal::{Clear, ClearType},
     Result,
 };
+use colored::Colorize;
 use std::io::stdout;
+
+/// Returns the given label with a whitebox around it as a String
+///
+/// # Arguments
+///
+/// * `label` - The label in the box
+pub fn box_label<T: ToString>(label: T) -> String {
+    format!(" {} ", label.to_string().black())
+        .on_bright_white()
+        .to_string()
+}
 
 /// Prints a string followed by a new line and carriage return to the stdout using Crossterm.
 /// Works in raw mode

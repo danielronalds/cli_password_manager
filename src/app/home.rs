@@ -1,6 +1,5 @@
 //! This module contains the home page of the application
 
-use colored::Colorize;
 use crossterm::{
     cursor,
     event::{read, Event, KeyCode},
@@ -11,21 +10,9 @@ use crossterm::{
 
 use std::io::stdout;
 
-use crate::terminal_drawing;
+use crate::terminal_drawing::{box_label, print, println};
 
 use PageOption::*;
-
-
-/// Returns the given label with a whitebox around it as a String
-///
-/// # Arguments
-///
-/// * `label` - The label in the box
-fn box_label<T: ToString>(label: T) -> String {
-    format!(" {} ", label.to_string().black())
-        .on_bright_white()
-        .to_string()
-}
 
 #[derive(Clone, Copy)]
 pub enum PageOption {
@@ -41,7 +28,7 @@ impl PageOption {
             Search => ChangePassword,
             ChangePassword => Help,
             Help => Exit,
-            Exit => Search
+            Exit => Search,
         }
     }
 
@@ -50,7 +37,7 @@ impl PageOption {
             Search => Exit,
             ChangePassword => Search,
             Help => ChangePassword,
-            Exit => Help
+            Exit => Help,
         }
     }
 }
@@ -84,11 +71,11 @@ fn draw_home(current_option: PageOption) -> Result<()> {
         cursor::Hide
     )?;
 
-    terminal_drawing::println(format!("Password Manager v{}", env!("CARGO_PKG_VERSION")))?;
-    terminal_drawing::println(" Search Accounts ")?;
-    terminal_drawing::println(" Change Password ")?;
-    terminal_drawing::println(" Help ")?;
-    terminal_drawing::println(" Exit ")?;
+    println(format!("Password Manager v{}", env!("CARGO_PKG_VERSION")))?;
+    println(" Search Accounts ")?;
+    println(" Change Password ")?;
+    println(" Help ")?;
+    println(" Exit ")?;
 
     let current_option_line = match current_option {
         Search => 1,
@@ -98,15 +85,15 @@ fn draw_home(current_option: PageOption) -> Result<()> {
     };
 
     let selected_text = match current_option {
-        Search => box_label("Search Accounts"), 
-        ChangePassword => box_label("Change Password"), 
-        Help => box_label("Help"), 
-        Exit => box_label("Exit"), 
+        Search => box_label("Search Accounts"),
+        ChangePassword => box_label("Change Password"),
+        Help => box_label("Help"),
+        Exit => box_label("Exit"),
     };
 
     execute!(stdout(), cursor::MoveTo(0, current_option_line))?;
 
-    terminal_drawing::print(selected_text)?;
+    print(selected_text)?;
 
     Ok(())
 }

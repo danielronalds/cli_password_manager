@@ -26,7 +26,7 @@ use std::io::Write;
 ///
 /// Either the password the user entered, or an io error
 pub fn login() -> std::io::Result<String> {
-    print!("{} ", view::box_label("Enter Password"));
+    print!("{} ", crate::terminal_drawing::box_label("Enter Password"));
     std::io::stdout().flush().expect("Failed to flush");
 
     let mut password = String::new();
