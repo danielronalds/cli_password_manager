@@ -175,6 +175,7 @@ fn edit(account: Account, current_field: AccountField) -> Result<Account> {
         format!("{} ", box_label(label)),
         (label.len() + 3) as u16,
         content,
+        false,
     )?;
 
     // Making the edit if an edit was made
@@ -211,13 +212,6 @@ fn draw_view(account: &Account, current_field: AccountField) -> Result<()> {
         cursor::Hide
     )?;
 
-    // Hiding the password
-    let mut hidden_password = String::new();
-
-    for _ in account.password().chars() {
-        hidden_password.push('*');
-    }
-
     // Drawing the initial list
     println(format!(" Label  {}", account.label()))?;
     println(format!(
@@ -234,7 +228,10 @@ fn draw_view(account: &Account, current_field: AccountField) -> Result<()> {
             None => "".to_string(),
         }
     ))?;
-    println(format!(" Password  {}", hidden_password))?;
+    println(format!(
+        " Password  {}",
+        account.password().chars().map(|_| '*').collect::<String>()
+    ))?;
 
     // Replacing the current fields normal label with the selected field version
     match current_field {

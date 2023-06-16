@@ -68,6 +68,7 @@ pub fn get_confirmation() -> Result<bool> {
 /// * `prompt` - What the textbox prompt should be
 /// * `prompt_len` - The length of the prompt
 /// * `content` - The initial content of the textfield
+/// * `hide_input` - Whether the content of the textfield should be hidden with '*' chars
 ///
 /// # Returns
 ///
@@ -76,11 +77,12 @@ pub fn get_confirmation() -> Result<bool> {
 pub fn textfield<T: ToString>(
     prompt: T,
     prompt_len: u16,
-    content: String,
+    content: T,
+    hide_input: bool
 ) -> Result<Option<String>> {
     execute!(stdout(), cursor::Show, cursor::SetCursorStyle::SteadyBlock)?;
 
-    let mut output = content;
+    let mut output = content.to_string();
     let prompt = prompt.to_string();
 
     let mut cursor = output.len();
@@ -89,7 +91,10 @@ pub fn textfield<T: ToString>(
         execute!(
             stdout(),
             Clear(ClearType::CurrentLine),
-            Print(format!("\r{}{}", prompt, &output)),
+            Print(format!("\r{}{}", prompt, match hide_input {
+                true => output.chars().map(|_| { '*' }).collect::<String>(),
+                false => output.to_string()
+            })),
             cursor::MoveToColumn(0),
             cursor::MoveRight(prompt_len + (cursor as u16))
         )?;

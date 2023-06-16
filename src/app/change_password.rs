@@ -1,6 +1,6 @@
 //! This module contains the change password screen logic
 
-use crate::terminal_drawing::{box_label, textfield};
+use crate::terminal_drawing::{box_label, textfield, println};
 use crossterm::{
     cursor, execute,
     terminal::{Clear, ClearType},
@@ -19,6 +19,7 @@ pub fn change_password(old_password: &str) -> crossterm::Result<Option<String>> 
         format!("{} ", box_label("Enter Old Password")),
         21,
         "".to_string(),
+        true
     )? {
         Some(entered_old_password) => entered_old_password.trim().to_string(),
         None => return Ok(None),
@@ -32,6 +33,7 @@ pub fn change_password(old_password: &str) -> crossterm::Result<Option<String>> 
         format!("{} ", box_label("Enter New Password")),
         21,
         "".to_string(),
+        true
     )? {
         Some(new_password) => new_password.trim().to_string(),
         None => return Ok(None),
@@ -41,6 +43,7 @@ pub fn change_password(old_password: &str) -> crossterm::Result<Option<String>> 
         format!("{} ", box_label("Confirmed New Password")),
         25,
         "".to_string(),
+        true
     )? {
         Some(confirmed_new_password) => confirmed_new_password.trim().to_string(),
         None => return Ok(None),
