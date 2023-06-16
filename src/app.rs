@@ -17,21 +17,19 @@ use search::{search, SearchAction};
 use view::view;
 
 use crate::serialisation::{deserialise, read_password_file, DeserialisationResult};
-
-use std::io::Write;
+use crate::terminal_drawing::{box_label, textfield};
 
 /// Prompts the user to login
 ///
 /// # Returns
 ///
 /// Either the password the user entered, or an io error
-pub fn login() -> std::io::Result<String> {
-    print!("{} ", crate::terminal_drawing::box_label("Enter Password"));
-    std::io::stdout().flush().expect("Failed to flush");
-
-    let mut password = String::new();
-    std::io::stdin().read_line(&mut password)?;
-    Ok(password)
+pub fn login() -> crossterm::Result<String> {
+    enable_raw_mode()?;
+    let prompt = format!("{} ", box_label("Enter Password"));
+    let password = textfield(prompt, 17, "".to_string(), true)?;
+    disable_raw_mode()?;
+    Ok(password.unwrap_or(String::new()))
 }
 
 /// Setup function, that reads the file, confirms the password, and returns the password submitted,
@@ -54,7 +52,7 @@ pub fn setup(password_file: &str) -> Option<(Vec<Account>, String)> {
             match deserialise(password_file, password.trim()) {
                 DeserialisationResult::WrongPassword => {
                     eprintln!(
-                        "{} Thats the wrong password!",
+                        "\r{} Thats the wrong password!",
                         " WARNING ".black().on_yellow()
                     );
                     None
