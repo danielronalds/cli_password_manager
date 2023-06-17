@@ -107,9 +107,7 @@ pub fn run(accounts: Vec<Account>, password: String) -> crossterm::Result<(Vec<A
                             .unwrap();
                         match view(accounts[index].clone())? {
                             Some(account) => {
-                                if !account_with_label(&accounts, &account.label()) {
-                                    accounts[index] = account;
-                                }
+                                accounts[index] = account;
                             }
                             None => {
                                 accounts.remove(index);
