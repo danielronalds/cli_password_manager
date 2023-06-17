@@ -7,6 +7,7 @@ use crossterm::{
     terminal::{Clear, ClearType},
     Result,
 };
+use rand::Rng;
 use std::io::stdout;
 
 use arboard::Clipboard;
@@ -75,7 +76,7 @@ pub fn view(account: Account) -> Result<Option<Account>> {
                 }
                 KeyCode::Char('G') => {
                     if confirm_random_password()? {
-                        account.generate_random_password();
+                        account.set_password(generate_random_password());
                     }
                 }
                 KeyCode::Esc | KeyCode::Char('q') => break,
@@ -107,6 +108,31 @@ fn confirm_random_password() -> Result<bool> {
     execute!(stdout(), cursor::MoveTo(0, 5))?;
     println("Are you sure you want to generate a random password? [y/N]")?;
     get_confirmation()
+}
+
+const AVERAGE_PASSWORD_LENGTH: usize = 20;
+const ASCII_MIN: u8 = 33;
+const ASCII_MAX: u8 = 126;
+
+/// Generates a random password for the account
+///
+/// # Returns
+///
+/// A random password as a String
+pub fn generate_random_password() -> String {
+    let mut password = String::new();
+    let password_length = rand::thread_rng()
+        .gen_range(AVERAGE_PASSWORD_LENGTH.saturating_sub(4)..=AVERAGE_PASSWORD_LENGTH + 4);
+
+    for _ in 0..password_length {
+        let mut char = rand::thread_rng().gen_range(ASCII_MIN..=ASCII_MAX) as char;
+        while !char.is_alphanumeric() {
+            char = rand::thread_rng().gen_range(ASCII_MIN..=ASCII_MAX) as char;
+        }
+        password.push(char);
+    }
+
+    password
 }
 
 /// Yanks the given field in the Account into the clipboard. For some reason this only works
