@@ -1,6 +1,7 @@
 //! A module that handles the logic of storing accounts while the app is running
 
 use magic_crypt::{MagicCrypt256, MagicCryptTrait};
+use rand::Rng;
 
 #[derive(Debug, Clone)]
 /// A struct that stores the details of an account stored in the password manager
@@ -81,6 +82,26 @@ impl Account {
     /// * `new_password` - What the accounts new password should be
     pub fn set_password(&mut self, new_password: String) {
         self.password = new_password;
+    }
+
+
+    /// Generates a random password for the account
+    pub fn generate_random_password(&mut self) {
+        const PASSWORD_LENGTH: usize = 20;
+        const ASCII_MIN: u8 = 33;
+        const ASCII_MAX: u8 = 126;
+
+        let mut password = String::new();
+
+        for _ in 0..PASSWORD_LENGTH {
+            let mut char = rand::thread_rng().gen_range(ASCII_MIN..=ASCII_MAX) as char;
+            while !char.is_alphanumeric() {
+                char = rand::thread_rng().gen_range(ASCII_MIN..=ASCII_MAX) as char;
+            }
+            password.push(char);
+        }
+
+        self.password = password;
     }
 
     /// Encrypts the Account into a string with the stored encrypter

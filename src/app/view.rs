@@ -73,6 +73,11 @@ pub fn view(account: Account) -> Result<Option<Account>> {
                         return Ok(None);
                     }
                 }
+                KeyCode::Char('G') => {
+                    if confirm_random_password()? {
+                        account.generate_random_password();
+                    }
+                }
                 KeyCode::Esc | KeyCode::Char('q') => break,
                 _ => (),
             }
@@ -84,10 +89,23 @@ pub fn view(account: Account) -> Result<Option<Account>> {
 /// Prompts the user to confirm whether they'd actually like to delete the account being viewed
 ///
 /// # Returns
+///
 /// `true` if the user presses y or Y, any other key results in `false`. Otherwise an IO error
 fn confirm_delete_list() -> Result<bool> {
     execute!(stdout(), cursor::MoveTo(0, 5))?;
     println("Are you sure you want to delete this account? [y/N]")?;
+    get_confirmation()
+}
+
+/// Prompts the user to confirm whether they'd actually like to generate a random password for the
+/// account
+///
+/// # Returns
+///
+/// `true` if the user presses y or Y, any other key results in `false`. Otherwise an IO error
+fn confirm_random_password() -> Result<bool> {
+    execute!(stdout(), cursor::MoveTo(0, 5))?;
+    println("Are you sure you want to generate a random password? [y/N]")?;
     get_confirmation()
 }
 

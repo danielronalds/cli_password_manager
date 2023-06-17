@@ -31,7 +31,7 @@ pub fn search(accounts: &[Account]) -> Result<SearchAction> {
 
     loop {
         draw_search_results(&filtered_accounts)?;
-        let prompt = format!("{} ", " Search ".black().on_bright_white());
+        let prompt = format!("{} ", terminal_drawing::box_label("Search"));
         search_term = match search_textfield(prompt, 9, search_term)? {
             SearchResult::ContinueSearch(search_term) => search_term,
             SearchResult::SearchFinished(search_term) => {
