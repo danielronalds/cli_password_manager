@@ -1,5 +1,6 @@
 //! This module contains the entry point for the CLI application
 mod change_password;
+mod notification;
 mod home;
 mod search;
 mod view;
@@ -11,9 +12,10 @@ use crossterm::{
     terminal::{self, disable_raw_mode, enable_raw_mode},
 };
 
-use change_password::change_password;
+use change_password::{change_password, PasswordResult};
 use home::{home, PageOption};
 use search::{search, SearchAction};
+use notification::show_notification;
 use view::view;
 
 use crate::serialisation::{deserialise, read_password_file, DeserialisationResult};
@@ -104,7 +106,7 @@ pub fn run(accounts: Vec<Account>, password: String) -> crossterm::Result<(Vec<A
                         let index = accounts
                             .iter()
                             .position(|x| x.label() == account_label)
-                            .unwrap();
+                            .expect("Safe to unwrap as we know the label exists");
                         match view(accounts[index].clone())? {
                             Some(account) => {
                                 accounts[index] = account;
@@ -128,8 +130,10 @@ pub fn run(accounts: Vec<Account>, password: String) -> crossterm::Result<(Vec<A
                 };
             },
             PageOption::ChangePassword => {
-                if let Some(new_password) = change_password(&password.trim())? {
-                    password = new_password;
+                match change_password(&password.trim())? {
+                    PasswordResult::NewPassword(new_password) => password = new_password,
+                    PasswordResult::Error(error) => show_notification(error)?,
+                    PasswordResult::None => (),
                 }
             }
             PageOption::Help => unimplemented!(),

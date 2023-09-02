@@ -7,12 +7,18 @@ use crossterm::{
 };
 use std::io::stdout;
 
+pub enum PasswordResult {
+    NewPassword(String),
+    Error(String),
+    None
+}
+
 /// Entry point to changing the password of the app
 ///
 /// # Arguments
 ///
 /// * `old_password` - The old password
-pub fn change_password(old_password: &str) -> crossterm::Result<Option<String>> {
+pub fn change_password(old_password: &str) -> crossterm::Result<PasswordResult> {
     clear_screen()?;
 
     let entered_old_password = match textfield(
@@ -22,11 +28,11 @@ pub fn change_password(old_password: &str) -> crossterm::Result<Option<String>> 
         true
     )? {
         Some(entered_old_password) => entered_old_password.trim().to_string(),
-        None => return Ok(None),
+        None => return Ok(PasswordResult::None),
     };
 
     if entered_old_password != old_password {
-        return Ok(None);
+        return Ok(PasswordResult::Error("Incorrect password!".to_string()));
     }
 
     let new_password = match textfield(
@@ -36,7 +42,7 @@ pub fn change_password(old_password: &str) -> crossterm::Result<Option<String>> 
         true
     )? {
         Some(new_password) => new_password.trim().to_string(),
-        None => return Ok(None),
+        None => return Ok(PasswordResult::None),
     };
 
     let confirmed_new_password = match textfield(
@@ -46,14 +52,14 @@ pub fn change_password(old_password: &str) -> crossterm::Result<Option<String>> 
         true
     )? {
         Some(confirmed_new_password) => confirmed_new_password.trim().to_string(),
-        None => return Ok(None),
+        None => return Ok(PasswordResult::None),
     };
 
     if confirmed_new_password != new_password {
-        return Ok(None);
+        return Ok(PasswordResult::Error("Passwords do not match!".to_string()));
     }
 
-    Ok(Some(new_password))
+    Ok(PasswordResult::NewPassword(new_password))
 }
 
 fn clear_screen() -> crossterm::Result<()> {
