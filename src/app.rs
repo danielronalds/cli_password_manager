@@ -4,6 +4,7 @@ mod notification;
 mod home;
 mod search;
 mod view;
+mod help;
 
 use crate::account::Account;
 use colored::Colorize;
@@ -136,7 +137,7 @@ pub fn run(accounts: Vec<Account>, password: String) -> crossterm::Result<(Vec<A
                     PasswordResult::None => (),
                 }
             }
-            PageOption::Help => unimplemented!(),
+            PageOption::Help => help::show_help_menu()?,
             PageOption::Exit => break,
         }
     }
