@@ -1,10 +1,10 @@
 //! This module contains the entry point for the CLI application
 mod change_password;
-mod notification;
+mod help;
 mod home;
+mod notification;
 mod search;
 mod view;
-mod help;
 
 use crate::account::Account;
 use colored::Colorize;
@@ -15,8 +15,8 @@ use crossterm::{
 
 use change_password::{change_password, PasswordResult};
 use home::{home, PageOption};
-use search::{search, SearchAction};
 use notification::show_notification;
+use search::{search, SearchAction};
 use view::view;
 
 use crate::serialisation::{deserialise, read_password_file, DeserialisationResult};
@@ -130,13 +130,11 @@ pub fn run(accounts: Vec<Account>, password: String) -> crossterm::Result<(Vec<A
                     SearchAction::Exit => break,
                 };
             },
-            PageOption::ChangePassword => {
-                match change_password(password.trim())? {
-                    PasswordResult::NewPassword(new_password) => password = new_password,
-                    PasswordResult::Error(error) => show_notification(error)?,
-                    PasswordResult::None => (),
-                }
-            }
+            PageOption::ChangePassword => match change_password(password.trim())? {
+                PasswordResult::NewPassword(new_password) => password = new_password,
+                PasswordResult::Error(error) => show_notification(error)?,
+                PasswordResult::None => (),
+            },
             PageOption::Help => help::show_help_menu()?,
             PageOption::Exit => break,
         }

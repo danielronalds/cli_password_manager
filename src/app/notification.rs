@@ -1,7 +1,6 @@
 //! This module contains the neccesary code for display a message on its own screen
 use crossterm::{
-    cursor,
-    execute,
+    cursor, execute,
     terminal::{Clear, ClearType},
     Result,
 };

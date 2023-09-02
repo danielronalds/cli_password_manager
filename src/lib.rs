@@ -1,4 +1,4 @@
 pub mod account;
-pub mod serialisation;
 pub mod app;
+pub mod serialisation;
 mod terminal_drawing;

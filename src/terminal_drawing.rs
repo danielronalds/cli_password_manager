@@ -1,5 +1,6 @@
-//! This module contains terminal drawing and text formating functions 
+//! This module contains terminal drawing and text formating functions
 
+use colored::Colorize;
 use crossterm::{
     cursor,
     event::{read, Event, KeyCode},
@@ -8,7 +9,6 @@ use crossterm::{
     terminal::{Clear, ClearType},
     Result,
 };
-use colored::Colorize;
 use std::io::stdout;
 
 /// Returns the given label with a whitebox around it as a String
@@ -78,7 +78,7 @@ pub fn textfield<T: ToString>(
     prompt: T,
     prompt_len: u16,
     content: T,
-    hide_input: bool
+    hide_input: bool,
 ) -> Result<Option<String>> {
     execute!(stdout(), cursor::Show, cursor::SetCursorStyle::SteadyBlock)?;
 
@@ -91,10 +91,14 @@ pub fn textfield<T: ToString>(
         execute!(
             stdout(),
             Clear(ClearType::CurrentLine),
-            Print(format!("\r{}{}", prompt, match hide_input {
-                true => output.chars().map(|_| { '*' }).collect::<String>(),
-                false => output.to_string()
-            })),
+            Print(format!(
+                "\r{}{}",
+                prompt,
+                match hide_input {
+                    true => output.chars().map(|_| { '*' }).collect::<String>(),
+                    false => output.to_string(),
+                }
+            )),
             cursor::MoveToColumn(0),
             cursor::MoveRight(prompt_len + (cursor as u16))
         )?;

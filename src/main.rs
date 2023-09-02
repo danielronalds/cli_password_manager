@@ -10,8 +10,9 @@ fn main() {
     };
 
     match password_manager::app::run(accounts, password) {
-        Ok((accounts, password)) => serialise(accounts, PASSWORD_FILE, password.trim())
-            .expect("Failed to serialise data"),
+        Ok((accounts, password)) => {
+            serialise(accounts, PASSWORD_FILE, password.trim()).expect("Failed to serialise data")
+        }
         Err(e) => {
             eprintln!("{}", " ERROR ".bright_white().on_bright_red());
             eprintln!("{}", e);

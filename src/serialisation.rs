@@ -17,7 +17,7 @@
 //!
 //! Accounts that do not have an email or a username have blank lines instead
 
-use magic_crypt::{MagicCryptTrait, new_magic_crypt};
+use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 
 use std::fs::File;
 use std::io::{
@@ -55,10 +55,7 @@ pub fn read_password_file(filename: &str) -> io::Result<String> {
 /// # Returns
 ///
 /// A result either containing the vector of accounts or an IO error
-pub fn deserialise(
-    password_file_contents: String,
-    password: &str,
-) -> DeserialisationResult {
+pub fn deserialise(password_file_contents: String, password: &str) -> DeserialisationResult {
     let mut lines = password_file_contents.lines();
 
     let mut accounts: Vec<Account> = vec![];
@@ -107,11 +104,7 @@ pub fn deserialise(
 /// * `accounts`      - The accounts to serialise
 /// * `password_file` - The name of the file to serialise to
 /// * `password`      - The user's password to verify against
-pub fn serialise(
-    accounts: Vec<Account>,
-    password_file: &str,
-    password: &str,
-) -> io::Result<()> {
+pub fn serialise(accounts: Vec<Account>, password_file: &str, password: &str) -> io::Result<()> {
     let mut file = File::create(password_file)?;
 
     let encrypter = new_magic_crypt!(password.trim(), 256);

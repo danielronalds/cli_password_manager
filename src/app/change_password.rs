@@ -10,7 +10,7 @@ use std::io::stdout;
 pub enum PasswordResult {
     NewPassword(String),
     Error(String),
-    None
+    None,
 }
 
 /// Entry point to changing the password of the app
@@ -25,7 +25,7 @@ pub fn change_password(old_password: &str) -> crossterm::Result<PasswordResult> 
         format!("{} ", box_label("Enter Old Password")),
         21,
         "".to_string(),
-        true
+        true,
     )? {
         Some(entered_old_password) => entered_old_password.trim().to_string(),
         None => return Ok(PasswordResult::None),
@@ -39,7 +39,7 @@ pub fn change_password(old_password: &str) -> crossterm::Result<PasswordResult> 
         format!("{} ", box_label("Enter New Password")),
         21,
         "".to_string(),
-        true
+        true,
     )? {
         Some(new_password) => new_password.trim().to_string(),
         None => return Ok(PasswordResult::None),
@@ -49,7 +49,7 @@ pub fn change_password(old_password: &str) -> crossterm::Result<PasswordResult> 
         format!("{} ", box_label("Confirmed New Password")),
         25,
         "".to_string(),
-        true
+        true,
     )? {
         Some(confirmed_new_password) => confirmed_new_password.trim().to_string(),
         None => return Ok(PasswordResult::None),

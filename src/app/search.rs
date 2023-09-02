@@ -23,6 +23,7 @@ pub enum SearchAction {
     Exit,
 }
 
+/// Entry point for searching the saved accounts
 pub fn search(accounts: &[Account]) -> Result<SearchAction> {
     let mut search_term = String::new();
     let mut filtered_accounts = accounts.to_owned();
@@ -77,6 +78,7 @@ enum SearchResult {
     Exit,
 }
 
+/// The searchbox textfield. A custom implementation of the terminal_drawing::textfield()
 fn search_textfield(prompt: String, prompt_len: u16, content: String) -> Result<SearchResult> {
     execute!(stdout(), cursor::Show, cursor::SetCursorStyle::SteadyBlock)?;
 
@@ -111,7 +113,7 @@ fn search_textfield(prompt: String, prompt_len: u16, content: String) -> Result<
     Ok(SearchResult::ContinueSearch(output))
 }
 
-/// 
+/// Draws the search results
 fn draw_search_results(accounts: &[Account]) -> Result<()> {
     execute!(
         stdout(),
