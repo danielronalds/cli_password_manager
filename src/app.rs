@@ -93,7 +93,7 @@ pub fn setup(password_file: &str) -> Option<(Vec<Account>, String)> {
 /// A tuple with a Vec of accounts and the vaults password
 pub fn run(accounts: Vec<Account>, password: String) -> crossterm::Result<(Vec<Account>, String)> {
     let mut accounts = accounts;
-    let mut password = password.to_string();
+    let mut password = password;
 
     enable_raw_mode()?;
 
@@ -130,7 +130,7 @@ pub fn run(accounts: Vec<Account>, password: String) -> crossterm::Result<(Vec<A
                 };
             },
             PageOption::ChangePassword => {
-                match change_password(&password.trim())? {
+                match change_password(password.trim())? {
                     PasswordResult::NewPassword(new_password) => password = new_password,
                     PasswordResult::Error(error) => show_notification(error)?,
                     PasswordResult::None => (),

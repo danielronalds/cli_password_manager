@@ -1,6 +1,6 @@
 //! This module contains the change password screen logic
 
-use crate::terminal_drawing::{box_label, textfield, println};
+use crate::terminal_drawing::{box_label, textfield};
 use crossterm::{
     cursor, execute,
     terminal::{Clear, ClearType},

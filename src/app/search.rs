@@ -1,6 +1,5 @@
 //! This module contains the search "page" of the application
 
-use colored::Colorize;
 use crossterm::{
     cursor,
     event::{read, Event, KeyCode},
